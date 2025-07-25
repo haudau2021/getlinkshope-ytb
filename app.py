@@ -1,14 +1,22 @@
 from flask import Flask, render_template, request
 from urllib.parse import urlparse, parse_qs, urlencode, urlunparse
-import csv, os
+from datetime import datetime
+import csv
+import os
 import requests
 from bs4 import BeautifulSoup
-from datetime import datetime
 
 app = Flask(__name__)
 
 AFFILIATE_ID = "haudau-aff"
 CSV_FILE = 'history.csv'
+
+def resolve_redirect(short_url):
+    try:
+        response = requests.head(short_url, allow_redirects=True, timeout=5)
+        return response.url
+    except Exception:
+        return short_url
 
 def add_affiliate(link):
     parsed = urlparse(link)
@@ -18,35 +26,26 @@ def add_affiliate(link):
     new_query = urlencode(query, doseq=True)
     return urlunparse(parsed._replace(query=new_query))
 
-def save_to_csv(original, affiliate):
+def save_to_csv(original_link, final_link):
     file_exists = os.path.isfile(CSV_FILE)
-    with open(CSV_FILE, 'a', newline='', encoding='utf-8') as f:
-        writer = csv.writer(f)
+    with open(CSV_FILE, mode='a', newline='', encoding='utf-8') as file:
+        writer = csv.writer(file)
         if not file_exists:
-            writer.writerow(['Thời gian', 'Link gốc', 'Link Affiliate'])
-        writer.writerow([datetime.now().strftime("%Y-%m-%d %H:%M:%S"), original, affiliate])
-
-def resolve_redirect(link):
-    try:
-        res = requests.get(link, allow_redirects=True, timeout=5)
-        return res.url
-    except:
-        return link
+            writer.writerow(['Thời gian', 'Link gốc', 'Link đã tạo'])
+        writer.writerow([datetime.now().strftime("%Y-%m-%d %H:%M:%S"), original_link, final_link])
 
 def get_product_info(link):
     try:
-        headers = {"User-Agent": "Mozilla/5.0"}
-        res = requests.get(link, headers=headers, timeout=5)
-        soup = BeautifulSoup(res.text, 'html.parser')
+        headers = {'User-Agent': 'Mozilla/5.0'}
+        response = requests.get(link, headers=headers, timeout=10)
+        soup = BeautifulSoup(response.text, 'html.parser')
 
-        title = soup.find('title')
-        product_name = title.text.strip() if title else "Không tìm thấy"
+        title = soup.find("title").text.strip() if soup.find("title") else "Không tìm thấy"
+        price_tag = soup.find("meta", property="product:price:amount")
+        price = f"{int(float(price_tag['content'])):,.0f} VND" if price_tag else "Không rõ"
 
-        price_tag = soup.find("div", class_="pmmZf2") or soup.find("div", class_="pqTWkA")
-        price = price_tag.text.strip() if price_tag else "Không rõ"
-
-        return product_name, price
-    except:
+        return title, price
+    except Exception:
         return "Không tìm thấy", "Không rõ"
 
 @app.route("/", methods=["GET", "POST"])
@@ -54,7 +53,7 @@ def index():
     if request.method == "POST":
         link = request.form.get("shopee_link")
         if not link:
-            return render_template("index.html", error="Vui lòng nhập link.")
+            return render_template("index.html", error="Vui lòng nhập link.", now=datetime.now())
 
         original_link = resolve_redirect(link)
         affiliate_link = add_affiliate(original_link)
@@ -65,15 +64,9 @@ def index():
                                original=original_link,
                                result=affiliate_link,
                                product=product_name,
-                               price=price)
-
-    return render_template("index.html")
+                               price=price,
+                               now=datetime.now())
+    return render_template("index.html", now=datetime.now())
 
 if __name__ == "__main__":
     app.run(debug=True)
-
-
-# --- Chạy trên Render ---
-if __name__ == '__main__':
-    port = int(os.environ.get("PORT", 10000))
-    app.run(host='0.0.0.0', port=port)

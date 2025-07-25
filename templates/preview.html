@@ -2,42 +2,31 @@
 <html lang="vi">
 <head>
   <meta charset="UTF-8">
-  <title>Link đã tạo</title>
+  <title>Kết quả</title>
   <link rel="stylesheet" href="/static/style.css">
 </head>
 <body>
   <div class="container">
     <h2>✅ Link đã rút gọn thành công!</h2>
-
     <p><strong>Link gốc:</strong><br>{{ original }}</p>
     <p><strong>Link đã gắn Affiliate:</strong></p>
-
     <div class="link-box">
-      <input type="text" id="shortLink" value="{{ result }}" readonly>
-      <button onclick="copyLink()">📋 Copy</button>
-      <a href="{{ result }}" target="_blank"><button>🛒 Mua ngay</button></a>
+      <input type="text" value="{{ result }}" id="copy-link" readonly>
+      <button onclick="copyText()">📋 Copy</button>
+      <a href="{{ result }}" target="_blank"><button>Mua ngay</button></a>
     </div>
-
-    {% if name or price or image %}
-    <div style="text-align: left; margin-top: 30px;">
-      <h3>🛍️ Thông tin sản phẩm:</h3>
-      {% if image %}
-        <img src="{{ image }}" alt="Ảnh sản phẩm" style="width: 100%; border-radius: 10px;">
-      {% endif %}
-      <p><strong>Tên:</strong> {{ name }}</p>
-      <p><strong>Giá:</strong> {{ price }}</p>
-    </div>
-    {% endif %}
-
-    <a href="/" class="back">← Quay lại</a>
-    <p class="footer">© {{ now.year }} haudau2021</p>
+    <hr>
+    <h3>🛍️ Tên sản phẩm: {{ name }}</h3>
+    <h4>💰 Giá: {{ price }} VND</h4>
+    <a class="back" href="/">← Quay lại</a>
   </div>
-
   <script>
-    function copyLink() {
-      const link = document.getElementById("shortLink");
-      link.select();
+    function copyText() {
+      const input = document.getElementById("copy-link");
+      input.select();
+      input.setSelectionRange(0, 99999);
       document.execCommand("copy");
+      alert("Đã copy link!");
     }
   </script>
 </body>

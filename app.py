@@ -1,18 +1,15 @@
 from flask import Flask, render_template, request
 from urllib.parse import urlparse, parse_qs, urlencode, urlunparse
-from bs4 import BeautifulSoup
+import csv, os
 import requests
-import csv
+from bs4 import BeautifulSoup
 from datetime import datetime
-import os
 
 app = Flask(__name__)
 
-# --- Cấu hình ---
-AFFILIATE_ID = "haudau-aff"  # 👈 Sửa nếu cần
-CSV_FILE = "history.csv"
+AFFILIATE_ID = "haudau-aff"
+CSV_FILE = 'history.csv'
 
-# --- Gắn mã affiliate ---
 def add_affiliate(link):
     parsed = urlparse(link)
     query = parse_qs(parsed.query)
@@ -21,49 +18,60 @@ def add_affiliate(link):
     new_query = urlencode(query, doseq=True)
     return urlunparse(parsed._replace(query=new_query))
 
-# --- Lấy thông tin sản phẩm ---
-def get_product_info(url):
-    headers = {
-        "User-Agent": "Mozilla/5.0"
-    }
+def save_to_csv(original, affiliate):
+    file_exists = os.path.isfile(CSV_FILE)
+    with open(CSV_FILE, 'a', newline='', encoding='utf-8') as f:
+        writer = csv.writer(f)
+        if not file_exists:
+            writer.writerow(['Thời gian', 'Link gốc', 'Link Affiliate'])
+        writer.writerow([datetime.now().strftime("%Y-%m-%d %H:%M:%S"), original, affiliate])
+
+def resolve_redirect(link):
     try:
-        response = requests.get(url, headers=headers, timeout=10)
-        soup = BeautifulSoup(response.text, "html.parser")
+        res = requests.get(link, allow_redirects=True, timeout=5)
+        return res.url
+    except:
+        return link
 
-        title_tag = soup.find("title")
-        name = title_tag.text.strip().replace(" | Shopee Việt Nam", "") if title_tag else "Không tìm thấy"
+def get_product_info(link):
+    try:
+        headers = {"User-Agent": "Mozilla/5.0"}
+        res = requests.get(link, headers=headers, timeout=5)
+        soup = BeautifulSoup(res.text, 'html.parser')
 
-        price_tag = soup.find("div", class_="pqTWkA")
+        title = soup.find('title')
+        product_name = title.text.strip() if title else "Không tìm thấy"
+
+        price_tag = soup.find("div", class_="pmmZf2") or soup.find("div", class_="pqTWkA")
         price = price_tag.text.strip() if price_tag else "Không rõ"
 
-        return name, price
+        return product_name, price
     except:
         return "Không tìm thấy", "Không rõ"
 
-# --- Lưu vào file CSV ---
-def save_to_csv(original, final, name, price):
-    file_exists = os.path.isfile(CSV_FILE)
-    with open(CSV_FILE, mode='a', newline='', encoding='utf-8') as file:
-        writer = csv.writer(file)
-        if not file_exists:
-            writer.writerow(['Thời gian', 'Link gốc', 'Link rút gọn', 'Tên sản phẩm', 'Giá'])
-        writer.writerow([datetime.now().strftime("%Y-%m-%d %H:%M:%S"), original, final, name, price])
-
-# --- Trang chính ---
-@app.route('/', methods=['GET', 'POST'])
+@app.route("/", methods=["GET", "POST"])
 def index():
-    if request.method == 'POST':
-        original = request.form.get("shopee_link")
-        if not original:
-            return render_template("index.html", error="Vui lòng nhập link Shopee.")
+    if request.method == "POST":
+        link = request.form.get("shopee_link")
+        if not link:
+            return render_template("index.html", error="Vui lòng nhập link.")
 
-        final_link = add_affiliate(original)
-        name, price = get_product_info(original)
-        save_to_csv(original, final_link, name, price)
+        original_link = resolve_redirect(link)
+        affiliate_link = add_affiliate(original_link)
+        product_name, price = get_product_info(original_link)
+        save_to_csv(original_link, affiliate_link)
 
-        return render_template("preview.html", original=original, result=final_link, name=name, price=price)
+        return render_template("preview.html",
+                               original=original_link,
+                               result=affiliate_link,
+                               product=product_name,
+                               price=price)
 
     return render_template("index.html")
+
+if __name__ == "__main__":
+    app.run(debug=True)
+
 
 # --- Chạy trên Render ---
 if __name__ == '__main__':

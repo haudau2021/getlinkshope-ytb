@@ -1,35 +1,30 @@
 <!DOCTYPE html>
 <html lang="vi">
 <head>
-    <meta charset="UTF-8">
-    <title>Link đã rút gọn</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+  <meta charset="UTF-8">
+  <title>Kết quả</title>
+  <link rel="stylesheet" href="/static/style.css">
 </head>
 <body>
-    <div class="container">
-        <h2>✅ Link đã rút gọn thành công!</h2>
-        <p><strong>Link gốc:</strong><br>{{ original }}</p>
-        <p><strong>Link đã gắn Affiliate:</strong></p>
-
-        <div class="link-box">
-            <input type="text" value="{{ result }}" id="copyInput" readonly>
-            <button onclick="copyToClipboard()">📋 Copy</button>
-            <a href="{{ result }}" target="_blank"><button>Mua ngay</button></a>
-        </div>
-
-        <p>🔒 <strong>Tên sản phẩm:</strong> {{ product }}</p>
-        <p>💰 <strong>Giá:</strong> {{ price }}</p>
-        <a class="back" href="/">← Quay lại</a>
-        <div class="footer">© {{ now.year }} haudau2021</div>
+  <div class="container">
+    <h2>🎉 Đã tạo link thành công!</h2>
+    <p><strong>Sản phẩm:</strong> {{ name }}</p>
+    <p><strong>Giá:</strong> {{ price }}</p>
+    <div class="link-box">
+      <input type="text" id="resultLink" value="{{ result }}" readonly>
+      <button onclick="copyLink()">Copy</button>
+      <a href="{{ result }}" target="_blank"><button style="background:#4CAF50">Mua ngay</button></a>
     </div>
-
-    <script>
-        function copyToClipboard() {
-            var copyText = document.getElementById("copyInput");
-            copyText.select();
-            copyText.setSelectionRange(0, 99999);
-            document.execCommand("copy");
-        }
-    </script>
+    <a class="back" href="/">← Tạo link khác</a>
+  </div>
+  <script>
+    function copyLink() {
+      const copyText = document.getElementById("resultLink");
+      copyText.select();
+      copyText.setSelectionRange(0, 99999);
+      document.execCommand("copy");
+      alert("Đã copy link: " + copyText.value);
+    }
+  </script>
 </body>
 </html>

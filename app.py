@@ -2,16 +2,32 @@ from flask import Flask, render_template, request
 
 app = Flask(__name__)
 
-@app.route('/')
-def index():
-    return render_template('index.html')
+# Cấu hình affiliate ID ở đây
+AFFILIATE_ID = "ABC123"  # 👉 Thay mã affiliate của bạn vào đây
 
-@app.route('/create', methods=['POST'])
-def create():
-    title = request.form['title']
-    image = request.form['image']
-    affiliate_link = request.form['affiliate_link']
-    return render_template('preview.html', title=title, image=image, link=affiliate_link)
+# Hàm tự động thêm affiliate ID vào link Shopee
+def add_affiliate(link):
+    if "shopee.vn" not in link:
+        return None  # Không xử lý nếu không phải link Shopee
+    if "?" in link:
+        return link + f"&affiliate_id={AFFILIATE_ID}"
+    else:
+        return link + f"?affiliate_id={AFFILIATE_ID}"
+
+@app.route('/', methods=["GET", "POST"])
+def index():
+    if request.method == "POST":
+        original_link = request.form.get("shopee_link")
+        final_link = add_affiliate(original_link)
+        if final_link:
+            return render_template("preview.html", link=final_link)
+        else:
+            return "⛔ Vui lòng nhập link Shopee hợp lệ.", 400
+    return render_template("index.html")
+
+@app.route('/health')
+def health():
+    return "OK", 200
 
 if __name__ == '__main__':
-    app.run(host='0.0.0.0', port=8080)
+    app.run(debug=True)

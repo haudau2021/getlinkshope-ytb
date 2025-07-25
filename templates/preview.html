@@ -2,26 +2,33 @@
 <html lang="vi">
 <head>
     <meta charset="UTF-8">
-    <title>Link Shopee</title>
+    <title>Đã tạo link thành công</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
 </head>
 <body>
     <div class="container">
         <h2>🎉 Đã tạo link thành công!</h2>
+
         <p><strong>Sản phẩm:</strong> {{ title }}</p>
-        <p><strong>Giá:</strong> {{ price }}</p>
+        <p><strong>Giá:</strong> {{ price }} VND</p>
+
         <div class="link-box">
-            <input type="text" value="{{ result }}" id="resultInput" readonly>
-            <button onclick="copy()">Copy</button>
-            <a href="{{ result }}" target="_blank"><button style="background-color:green;">Mua ngay</button></a>
+            <input type="text" value="{{ result }}" id="copyText" readonly>
+            <button onclick="copyToClipboard()">Copy</button>
+            <a href="{{ result }}" target="_blank"><button style="background-color: green;">Mua ngay</button></a>
         </div>
-        <a class="back" href="/">← Tạo link khác</a>
+
+        <a href="{{ url_for('index') }}" class="back">← Tạo link khác</a>
     </div>
+    <div class="footer">© {{ now.year }} haudau2021</div>
+
     <script>
-        function copy() {
-            var copyText = document.getElementById("resultInput");
+        function copyToClipboard() {
+            const copyText = document.getElementById("copyText");
             copyText.select();
+            copyText.setSelectionRange(0, 99999);
             document.execCommand("copy");
+            alert("Đã copy link!");
         }
     </script>
 </body>

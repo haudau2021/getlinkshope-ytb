@@ -23,15 +23,20 @@ def get_product_info(link):
     try:
         session = requests.Session()
         headers = {"User-Agent": "Mozilla/5.0"}
+        # Follow rút gọn
         resp = session.head(link, headers=headers, allow_redirects=True, timeout=10)
         real_url = resp.url
 
         res = session.get(real_url, headers=headers, timeout=10)
         soup = BeautifulSoup(res.text, "html.parser")
 
-        title_tag = soup.find("title")
-        title = title_tag.get_text(strip=True) if title_tag else "Không rõ"
+        # Tên sản phẩm từ thẻ meta hoặc title
+        title = soup.find("meta", property="og:title")
+        if not title:
+            title = soup.find("title")
+        title = title["content"] if title and title.has_attr("content") else title.get_text(strip=True) if title else "Không rõ"
 
+        # Giá sản phẩm
         price_tag = soup.find("meta", property="product:price:amount")
         price = price_tag["content"] if price_tag else "Không rõ"
 
@@ -53,7 +58,7 @@ def index():
     if request.method == "POST":
         original_link = request.form.get("shopee_link")
         if not original_link:
-            return render_template("index.html", error="Vui lòng nhập link Shopee.")
+            return render_template("index.html", error="Vui lòng nhập link Shopee.", now=datetime.now())
 
         final_link = add_affiliate(original_link)
         title, price = get_product_info(original_link)
@@ -67,7 +72,6 @@ def index():
                                now=datetime.now())
     return render_template("index.html", now=datetime.now())
 
-# === Khởi chạy Flask App ===
 if __name__ == "__main__":
     port = int(os.environ.get("PORT", 10000))
     app.run(debug=True, host="0.0.0.0", port=port)

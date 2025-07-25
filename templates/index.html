@@ -1,13 +1,39 @@
 <!DOCTYPE html>
-<html>
+<html lang="vi">
 <head>
-    <title>Tạo Link Shopee Affiliate</title>
+    <meta charset="UTF-8">
+    <title>Tạo link Shopee cho YouTube</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
 </head>
-<body>
-    <h2>🔗 Nhập Link Shopee</h2>
-    <form method="POST">
-        <input type="text" name="shopee_link" placeholder="Dán link Shopee ở đây" required style="width: 300px;">
-        <button type="submit">Tạo Link</button>
-    </form>
+<body class="bg-light">
+
+<div class="container mt-5">
+    <div class="card shadow p-4">
+        <h2 class="text-center mb-4 text-primary">🔗 Tạo Link Shopee Gắn YouTube</h2>
+        <form method="POST">
+            <div class="mb-3">
+                <label for="product_link" class="form-label fw-bold">Link sản phẩm Shopee</label>
+                <input type="url" class="form-control" id="product_link" name="product_link" required placeholder="https://shopee.vn/...">
+            </div>
+            <div class="mb-3">
+                <label for="affiliate_code" class="form-label fw-bold">Mã Affiliate (nếu có)</label>
+                <input type="text" class="form-control" id="affiliate_code" name="affiliate_code" placeholder="VD: haudau2021">
+            </div>
+            <div class="d-grid">
+                <button type="submit" class="btn btn-primary btn-lg">Tạo Link</button>
+            </div>
+        </form>
+        {% if generated_link %}
+        <div class="mt-4 alert alert-success">
+            <h5 class="fw-bold">✅ Link đã được tạo:</h5>
+            <input class="form-control" value="{{ generated_link }}" readonly onclick="this.select()">
+            <a href="{{ generated_link }}" target="_blank" class="btn btn-success mt-2">Truy cập link</a>
+        </div>
+        {% endif %}
+    </div>
+</div>
+
 </body>
 </html>

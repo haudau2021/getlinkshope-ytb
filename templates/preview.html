@@ -1,35 +1,31 @@
 <!DOCTYPE html>
 <html lang="vi">
 <head>
-    <meta charset="UTF-8">
-    <title>Đã tạo link thành công</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+  <meta charset="UTF-8">
+  <title>Link đã tạo</title>
+  <link rel="stylesheet" href="/static/style.css">
 </head>
 <body>
-    <div class="container">
-        <h2>🎉 Đã tạo link thành công!</h2>
-
-        <p><strong>Sản phẩm:</strong> {{ title }}</p>
-        <p><strong>Giá:</strong> {{ price }} VND</p>
-
-        <div class="link-box">
-            <input type="text" value="{{ result }}" id="copyText" readonly>
-            <button onclick="copyToClipboard()">Copy</button>
-            <a href="{{ result }}" target="_blank"><button style="background-color: green;">Mua ngay</button></a>
-        </div>
-
-        <a href="{{ url_for('index') }}" class="back">← Tạo link khác</a>
+  <div class="container">
+    <h2>🎉 Link đã tạo thành công!</h2>
+    <p><strong>Tên sản phẩm:</strong> {{ title }}</p>
+    <p><strong>Giá:</strong> {{ price }} đ</p>
+    <div class="link-box">
+      <input type="text" value="{{ result }}" id="copyTarget" readonly>
+      <button onclick="copyLink()">📋 Copy</button>
+      <a href="{{ result }}" target="_blank"><button>Mua ngay</button></a>
     </div>
-    <div class="footer">© {{ now.year }} haudau2021</div>
-
-    <script>
-        function copyToClipboard() {
-            const copyText = document.getElementById("copyText");
-            copyText.select();
-            copyText.setSelectionRange(0, 99999);
-            document.execCommand("copy");
-            alert("Đã copy link!");
-        }
-    </script>
+    <a class="back" href="/">← Quay lại</a>
+  </div>
+  <script>
+    function copyLink() {
+      var copyText = document.getElementById("copyTarget");
+      copyText.select();
+      copyText.setSelectionRange(0, 99999);
+      document.execCommand("copy");
+      alert("Đã copy link!");
+    }
+  </script>
+  <div class="footer">© {{ now.year }} haudau2021</div>
 </body>
 </html>

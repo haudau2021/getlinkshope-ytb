@@ -1,19 +1,20 @@
 <!DOCTYPE html>
-<html lang="vi">
+<html>
 <head>
-  <meta charset="UTF-8">
-  <title>Rút gọn link Shopee</title>
-  <link rel="stylesheet" href="/static/style.css">
+    <title>Get Link Shopee</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
 </head>
 <body>
-  <div class="container">
-    <h2>🔗 Nhập Link Shopee</h2>
+<div class="container">
+    <h2>🔗 Nhập Link Sản Phẩm</h2>
     <form method="POST">
-      <input type="text" name="shopee_link" placeholder="https://shopee.vn/..." required>
-      <button type="submit">Tạo link Affiliate</button>
+        <input type="text" name="shopee_link" placeholder="https://shopee.vn/..." required>
+        <button type="submit">Thêm giỏ hàng Youtube</button>
     </form>
-    {% if error %}<p class="error">{{ error }}</p>{% endif %}
-  </div>
-  <p class="footer">© {{ now.year if now else "2025" }} haudau2021</p>
+    {% if error %}
+        <p class="error">{{ error }}</p>
+    {% endif %}
+</div>
+<div class="footer">© {{ now.year }} haudau2021</div>
 </body>
 </html>

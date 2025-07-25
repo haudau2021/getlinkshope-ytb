@@ -1,20 +1,21 @@
 <!DOCTYPE html>
-<html>
+<html lang="vi">
 <head>
-    <title>Get Link Shopee</title>
+    <meta charset="UTF-8">
+    <title>Rút gọn link Shopee</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
 </head>
 <body>
-<div class="container">
-    <h2>🔗 Nhập Link Sản Phẩm</h2>
-    <form method="POST">
-        <input type="text" name="shopee_link" placeholder="https://shopee.vn/..." required>
-        <button type="submit">Thêm giỏ hàng Youtube</button>
-    </form>
-    {% if error %}
-        <p class="error">{{ error }}</p>
-    {% endif %}
-</div>
-<div class="footer">© {{ now.year }} haudau2021</div>
+    <div class="container">
+        <h1>🔗 Nhập Link Sản Phẩm</h1>
+        <form method="POST">
+            <input type="text" name="shopee_link" placeholder="https://s.shopee.vn/..." required>
+            <button type="submit">➕ Thêm giỏ hàng Youtube</button>
+        </form>
+        {% if error %}
+            <div class="error">{{ error }}</div>
+        {% endif %}
+        <div class="footer">© {{ now.year }} haudau2021</div>
+    </div>
 </body>
 </html>
